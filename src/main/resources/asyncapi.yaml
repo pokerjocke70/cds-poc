@@ -1,0 +1,109 @@
+asyncapi: '3.0.0'
+info:
+  title: Kafka Event API
+  version: '1.0.0'
+  description: An example AsyncAPI specification for Kafka messaging
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  production:
+    host: kafka.example.com:9092
+    protocol: kafka
+    description: Production Kafka broker
+    security:
+      - saslScram: []
+
+defaultContentType: application/json
+
+channels:
+  user-events:
+    address: users.events
+    messages:
+      userCreated:
+        $ref: '#/components/messages/UserCreated'
+      userUpdated:
+        $ref: '#/components/messages/UserUpdated'
+      userDeleted:
+        $ref: '#/components/messages/UserDeleted'
+
+  order-events:
+    address: orders.events
+    messages:
+      orderPlaced:
+        $ref: '#/components/messages/OrderPlaced'
+      orderStatusChanged:
+        $ref: '#/components/messages/OrderStatusChanged'
+
+operations:
+  publishUserCreated:
+    action: send
+    channel:
+      $ref: '#/channels/user-events'
+    messages:
+      - $ref: '#/components/messages/UserCreated'
+    summary: Publish event when a new user is created
+
+  consumeUserCreated:
+    action: receive
+    channel:
+      $ref: '#/channels/user-events'
+    messages:
+      - $ref: '#/components/messages/UserCreated'
+    summary: Consume user created events
+
+  publishOrderPlaced:
+    action: send
+    channel:
+      $ref: '#/channels/order-events'
+    messages:
+      - $ref: '#/components/messages/OrderPlaced'
+    summary: Publish event when a new order is placed
+
+components:
+  messages:
+    UserCreated:
+      name: UserCreated
+      title: User Created Event
+      summary: Event representing a new user creation
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserCreatedPayload'
+
+    UserUpdated:
+      name: UserUpdated
+      title: User Updated Event
+      summary: Event representing user information update
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserUpdatedPayload'
+
+    UserDeleted:
+      name: UserDeleted
+      title: User Deleted Event
+      summary: Event representing user deletion
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/UserDeletedPayload'
+
+    OrderPlaced:
+      name: OrderPlaced
+      title: Order Placed Event
+      summary: Event representing a new order placement
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/OrderPlacedPayload'
+
+    OrderStatusChanged:
+      name: OrderStatusChanged
+      title: Order Status Changed Event
+      summary: Event representing an order status change
+      contentType: application/json
+      payload:
+        $ref: './schema.json#/definitions/OrderStatusChanged'
+
+  securitySchemes:
+    saslScram:
+      type: scramSha256
+      description: SASL SCRAM SHA-256 Authentication
